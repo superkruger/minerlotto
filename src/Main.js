@@ -1,15 +1,15 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux'
-import { Button } from 'react-bootstrap'
+import { Container, Row, Col, Button } from 'react-bootstrap'
 import {
   Routes,
   Route,
   NavLink,
   HashRouter
 } from "react-router-dom";
-import Home from "./Home";
-import About from "./About";
-import Contact from "./Contact";
+import TopNav from "./components/TopNav"
+import SideNav from "./components/SideNav"
+import Content from "./components/Content"
 
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 
@@ -22,9 +22,11 @@ import {
 } from './store/selectors'
 
 import { 
+  socketConnected,
   appLoaded,
   addressEntered,
   headerReceived,
+  miningStarted,
   miningFinished
 } from './store/actions'
  
@@ -40,15 +42,18 @@ class Main extends Component {
   }
 
   componentWillMount() {
+    const props = this.props
     const {
       dispatch
-    } = this.props
+    } = props
 
     client.onopen = () => {
+
+      dispatch(socketConnected(client))
       console.log('WebSocket Client Connected');
       dispatch(appLoaded());
 
-      client.send(JSON.stringify({"Type": "REQUEST", "Address": "foobar"}))
+      //client.send(JSON.stringify({"Type": "REQUEST", "Address": "foobar"}))
     };
     client.onmessage = (event) => {
       console.log(event);
@@ -59,7 +64,7 @@ class Main extends Component {
 
       var header = JSON.stringify(headerMessage.Header)
       console.log('header', header)
-      wasmWorker(header)
+      //wasmWorker(header, props)
     };
   }
 
@@ -76,36 +81,9 @@ class Main extends Component {
     return (
       <HashRouter>
         <div>
-          <h1>Bitcoin Miner Lotto</h1>
-          <ul className="header">
-            <li><NavLink to="/">Home</NavLink></li>
-            <li><NavLink to="/about">About</NavLink></li>
-            <li><NavLink to="/contact">Contact</NavLink></li>
-          </ul>
-          <div className="content">
-            <Routes>
-              <Route exact path="/" element={<Home/>}/>
-              <Route path="/about" element={<About/>}/>
-              <Route path="/contact" element={<Contact/>}/>
-            </Routes>
-          </div>
+          <TopNav/>
           <div>
-            {
-            appLoaded 
-            ? <div>app loaded</div>
-            : <div>app not loaded</div>
-            }
-            {
-            isWaiting 
-            ? <div>waiting</div>
-            : <div>not waiting</div>
-            }
-            {
-            isMining 
-            ? <div>mining</div>
-            : <div>not mining</div>
-            }
-            <MiningButton props={this.props}/>
+            <Content />
           </div>
         </div>
       </HashRouter>
@@ -113,38 +91,12 @@ class Main extends Component {
   }
 }
 
-function MiningButton(props) {
+function wasmWorker(header, props) {
 
-  const handleClick = () => startMining(props.props);
-
-  return (
-    <Button
-      variant="primary"
-      onClick={handleClick}
-    >
-      Start Mining!
-    </Button>
-  );
-}
-
-const startMining = async (props) => {
-  const { dispatch } = props
-
-  console.log('Last Result', window.GetHashResult())
-
-  //dispatch(addressEntered('123'))
-  //dispatch(headerReceived({"hdr":"fff"}))
-  
-}
-
-export function AddLibrary(urlOfTheLibrary) {
-  const script = document.createElement('script');
-  script.src = urlOfTheLibrary;
-  script.async = true;
-  document.body.appendChild(script);
-}
-
-function wasmWorker(header) {
+    const {
+      address,
+      dispatch
+    } = props
  
     let hashResult = {};
  
@@ -160,21 +112,23 @@ function wasmWorker(header) {
  
             if (eventType === "RESULT") {
                 console.log("RESULT", eventData)
+                dispatch(miningFinished(eventData.solved, eventData.nonce))
 
-                client.send(JSON.stringify({"Type": "REQUEST", "Address": "foobar"}))
+                client.send(JSON.stringify({"Type": "REQUEST", "Address": address}))
+                return;
+            } else if (eventType === "BUSY") {
+                console.log("BUSY")
+                dispatch(miningStarted())
                 return;
             } 
-             
         });
  
         worker.addEventListener("error", function(error) {
             reject(error);
         });
     })
- 
 }
 
- 
 function mapStateToProps(state) {
   return {
     appLoaded: appLoadedSelector(state),

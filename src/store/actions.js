@@ -1,3 +1,10 @@
+export function socketConnected(client) {
+	return {
+		type: 'SOCKET_CONNECTED',
+		client
+	}
+}
+
 export function appLoaded() {
 	return {
 		type: 'APP_LOADED'
@@ -18,8 +25,15 @@ export function headerReceived(header) {
 	}
 }
 
-export function miningFinished() {
+export function miningStarted() {
 	return {
-		type: 'MINING_FINISHED'
+		type: 'MINING_STARTED'
+	}
+}
+export function miningFinished(solved, nonce) {
+	return {
+		type: 'MINING_FINISHED',
+		solved,
+		nonce
 	}
 }

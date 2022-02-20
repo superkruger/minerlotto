@@ -1,6 +1,11 @@
 import { get } from 'lodash'
 import { createSelector } from 'reselect'
 
+const socketConnected = state => get(state, 'app.connected', false)
+export const socketConnectedSelector = createSelector(socketConnected, s => s)
+
+const socketClient = state => get(state, 'app.client', null)
+export const socketClientSelector = createSelector(socketClient, s => s)
 
 const appLoaded = state => get(state, 'app.loaded', false)
 export const appLoadedSelector = createSelector(appLoaded, s => s)

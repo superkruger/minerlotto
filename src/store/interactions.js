@@ -1,22 +1,13 @@
 
 import { 
-	appLoaded
+	addressEntered,
+	socketConnected
 } from './actions.js'
-import { ETHER_ADDRESS, tokensToWei, etherToWei } from '../helpers'
 
-export const loadApp = (dispatch) => {
-	dispatch(appLoaded())
-}
-
-export const addressEntered = async (address, dispatch) => {
+export const enterAddress = async (address, socketClient, dispatch) => {
 	dispatch(addressEntered(address))
+	socketClient.send(JSON.stringify({"Type": "REQUEST", "Address": address}))
 }
 
-export const headerReceived = async (header, dispatch) => {
-	dispatch(headerReceived(header))
-}
 
-export const miningFinished = async (dispatch) => {
-	dispatch(miningFinished())
-}
 
