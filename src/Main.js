@@ -18,19 +18,25 @@ import {
   isWaitingSelector,
   addressSelector,
   isMiningSelector, 
-  headerSelector
+  headerProblemSelector
 } from './store/selectors'
 
 import { 
   socketConnected,
   appLoaded,
   addressEntered,
-  headerReceived,
+  headerProblemReceived,
   miningStarted,
-  miningFinished
+  miningFinished,
+  solutionVerified
 } from './store/actions'
+
+
+import { config } from './Constants'
+
+var socketUrl = config.url.SOCKET_URL
  
-const client = new W3CWebSocket('wss://api.decentravest.com/socket');
+const client = new W3CWebSocket(socketUrl);
 
 class Main extends Component {
   state = {};
@@ -52,19 +58,32 @@ class Main extends Component {
       dispatch(socketConnected(client))
       console.log('WebSocket Client Connected');
       dispatch(appLoaded());
-
-      //client.send(JSON.stringify({"Type": "REQUEST", "Address": "foobar"}))
     };
     client.onmessage = (event) => {
       console.log(event);
 
-      var headerMessage = JSON.parse(event.data)
-      console.log('headerMessage', headerMessage)
-      dispatch(headerReceived(headerMessage))
+      var socketMessage = JSON.parse(event.data)
+      console.log('socketMessage', socketMessage)
+      // dispatch(headerReceived(headerMessage))
 
-      var header = JSON.stringify(headerMessage.Header)
-      console.log('header', header)
-      //wasmWorker(header, props)
+      var messageType = socketMessage.Type
+
+      switch (messageType) {
+        case 'PROBLEM':
+        dispatch(headerProblemReceived(socketMessage))
+        var headerProblem = JSON.stringify(socketMessage)
+        console.log('headerProblem', headerProblem)
+        wasmWorker(headerProblem, props)
+        break
+
+        case 'SOLUTION':
+        dispatch(solutionVerified(socketMessage))
+        break
+
+        default:
+        console.log('unknown socket message received')
+      }
+      
     };
   }
 
@@ -91,7 +110,7 @@ class Main extends Component {
   }
 }
 
-function wasmWorker(header, props) {
+function wasmWorker(headerProblem, props) {
 
     const {
       address,
@@ -99,22 +118,33 @@ function wasmWorker(header, props) {
     } = props
  
     let hashResult = {};
+    hashResult['extraNonce'] = headerProblem.ExtraNonce
+    hashResult['blockHeight'] = headerProblem.BlockHeight
  
     return new Promise((resolve, reject) => {
 
         console.log("building worker")
 
         const worker = new Worker('wasm.worker.js');
-        worker.postMessage({eventType: "CALL", eventData: header, hashResult: hashResult});
+        worker.postMessage({eventType: "CALL", eventData: headerProblem.Header, hashResult: hashResult});
         worker.addEventListener('message', function(event) {
  
             const { eventType, eventData, eventId } = event.data;
  
             if (eventType === "RESULT") {
                 console.log("RESULT", eventData)
+
+                if (eventData.solved) {
+                  console.log("Header Problem Solved with nonce", eventData.nonce)
+                  client.send(JSON.stringify({"Type": "SOLVED", "Address": address, Nonce: eventData.nonce, ExtraNonce: eventData.extraNonce, BlockHeight: eventData.blockHeight}))
+                } else {
+                  console.log("Requesting next Header Problem")
+                  client.send(JSON.stringify({"Type": "REQUEST", "Address": address}))
+                }
+
                 dispatch(miningFinished(eventData.solved, eventData.nonce))
 
-                client.send(JSON.stringify({"Type": "REQUEST", "Address": address}))
+                
                 return;
             } else if (eventType === "BUSY") {
                 console.log("BUSY")
@@ -135,7 +165,7 @@ function mapStateToProps(state) {
     isWaiting: isWaitingSelector(state),
     address: addressSelector(state),
     isMining: isMiningSelector(state),
-    header: headerSelector(state)
+    headerProblem: headerProblemSelector(state)
   }
 }
 

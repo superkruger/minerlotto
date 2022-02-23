@@ -14,6 +14,8 @@ function app (state = {}, action) {
 			return {...state, mining: true, waiting: false}
 		case 'MINING_FINISHED':
 			return {...state, mining: false, waiting: true, solved: action.solved, nonce: action.nonce}
+		case 'SOLUTION_VERIFIED':
+			return {...state, solution: action.solution}
 		default:
 			return state
 	}

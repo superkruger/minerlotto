@@ -30,10 +30,18 @@ export function miningStarted() {
 		type: 'MINING_STARTED'
 	}
 }
+
 export function miningFinished(solved, nonce) {
 	return {
 		type: 'MINING_FINISHED',
 		solved,
 		nonce
+	}
+}
+
+export function solutionVerified(solution) {
+	return {
+		type: 'SOLUTION_VERIFIED',
+		solution
 	}
 }

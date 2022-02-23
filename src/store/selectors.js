@@ -21,3 +21,6 @@ export const isMiningSelector = createSelector(isMining, s => s)
 
 const header = state => get(state, 'app.header', null)
 export const headerSelector = createSelector(header, s => s)
+
+const solution = state => get(state, 'app.solution', null)
+export const solutionSelector = createSelector(solution, s => s)
