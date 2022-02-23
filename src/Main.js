@@ -18,14 +18,14 @@ import {
   isWaitingSelector,
   addressSelector,
   isMiningSelector, 
-  headerProblemSelector
+  problemSelector
 } from './store/selectors'
 
 import { 
   socketConnected,
   appLoaded,
   addressEntered,
-  headerProblemReceived,
+  problemReceived,
   miningStarted,
   miningFinished,
   solutionVerified
@@ -64,16 +64,13 @@ class Main extends Component {
 
       var socketMessage = JSON.parse(event.data)
       console.log('socketMessage', socketMessage)
-      // dispatch(headerReceived(headerMessage))
 
       var messageType = socketMessage.Type
 
       switch (messageType) {
         case 'PROBLEM':
-        dispatch(headerProblemReceived(socketMessage))
-        var headerProblem = JSON.stringify(socketMessage)
-        console.log('headerProblem', headerProblem)
-        wasmWorker(headerProblem, props)
+        dispatch(problemReceived(socketMessage))
+        wasmWorker(socketMessage, props)
         break
 
         case 'SOLUTION':
@@ -110,23 +107,23 @@ class Main extends Component {
   }
 }
 
-function wasmWorker(headerProblem, props) {
+function wasmWorker(problem, props) {
 
     const {
-      address,
       dispatch
     } = props
  
     let hashResult = {};
-    hashResult['extraNonce'] = headerProblem.ExtraNonce
-    hashResult['blockHeight'] = headerProblem.BlockHeight
+    hashResult['extraNonce'] = problem.ExtraNonce
+    hashResult['blockHeight'] = problem.BlockHeight
+    hashResult['address'] = problem.Address
  
     return new Promise((resolve, reject) => {
 
         console.log("building worker")
 
         const worker = new Worker('wasm.worker.js');
-        worker.postMessage({eventType: "CALL", eventData: headerProblem.Header, hashResult: hashResult});
+        worker.postMessage({eventType: "CALL", eventData: problem.Header, hashResult: hashResult});
         worker.addEventListener('message', function(event) {
  
             const { eventType, eventData, eventId } = event.data;
@@ -136,10 +133,10 @@ function wasmWorker(headerProblem, props) {
 
                 if (eventData.solved) {
                   console.log("Header Problem Solved with nonce", eventData.nonce)
-                  client.send(JSON.stringify({"Type": "SOLVED", "Address": address, Nonce: eventData.nonce, ExtraNonce: eventData.extraNonce, BlockHeight: eventData.blockHeight}))
+                  client.send(JSON.stringify({"Type": "SOLVED", "Address": eventData.address, Nonce: eventData.nonce, ExtraNonce: eventData.extraNonce, BlockHeight: eventData.blockHeight}))
                 } else {
                   console.log("Requesting next Header Problem")
-                  client.send(JSON.stringify({"Type": "REQUEST", "Address": address}))
+                  client.send(JSON.stringify({"Type": "REQUEST", "Address": eventData.address}))
                 }
 
                 dispatch(miningFinished(eventData.solved, eventData.nonce))
@@ -165,7 +162,7 @@ function mapStateToProps(state) {
     isWaiting: isWaitingSelector(state),
     address: addressSelector(state),
     isMining: isMiningSelector(state),
-    headerProblem: headerProblemSelector(state)
+    problem: problemSelector(state)
   }
 }
 

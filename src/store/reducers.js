@@ -8,8 +8,8 @@ function app (state = {}, action) {
 			return {...state, loaded: true}
 		case 'ADDRESS_ENTERED':
 			return {...state, waiting: true, address: action.address}
-		case 'HEADER_RECEIVED':
-			return {...state, mining: false, waiting: false, header: action.header}
+		case 'PROBLEM_RECEIVED':
+			return {...state, mining: false, waiting: false, problem: action.problem}
 		case 'MINING_STARTED':
 			return {...state, mining: true, waiting: false}
 		case 'MINING_FINISHED':

@@ -18,10 +18,10 @@ export function addressEntered(address) {
 	}
 }
 
-export function headerReceived(header) {
+export function problemReceived(problem) {
 	return {
-		type: 'HEADER_RECEIVED',
-		header
+		type: 'PROBLEM_RECEIVED',
+		problem
 	}
 }
 

@@ -14,7 +14,7 @@ import {
   isWaitingSelector,
   addressSelector,
   isMiningSelector, 
-  headerSelector
+  problemSelector
 } from '../store/selectors'
 
 import {
@@ -24,7 +24,6 @@ import {
 import { 
   appLoaded,
   addressEntered,
-  headerReceived,
   miningStarted,
   miningFinished
 } from '../store/actions'
@@ -97,7 +96,7 @@ function mapStateToProps(state) {
     isWaiting: isWaitingSelector(state),
     address: addressSelector(state),
     isMining: isMiningSelector(state),
-    header: headerSelector(state)
+    problem: problemSelector(state)
   }
 }
 export default connect(mapStateToProps)(Home);

@@ -6,7 +6,7 @@ const prod = {
 
 const dev = {
  url: {
-  SOCKET_URL: 'ws://localhost:80/socket'
+  SOCKET_URL: 'ws://localhost:8080/socket'
  }
 };
 

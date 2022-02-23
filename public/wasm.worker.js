@@ -23,6 +23,8 @@ self.addEventListener('message', function(event) {
 
     lastresult = hashResult
 
+    let header = JSON.stringify(eventData)
+
     importScripts('./wasm_exec.js');
     const go = new Go();
     
@@ -34,7 +36,7 @@ self.addEventListener('message', function(event) {
                 eventType: "BUSY",
             });
 
-            go.run(instantiatedModule.instance, [eventData])
+            go.run(instantiatedModule.instance, [header])
 
             // Send back result message to main thread
             self.postMessage({
