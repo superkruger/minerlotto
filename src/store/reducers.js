@@ -10,6 +10,8 @@ function app (state = {}, action) {
 			return {...state, waiting: true, address: action.address}
 		case 'PROBLEM_RECEIVED':
 			return {...state, mining: false, waiting: false, problem: action.problem}
+		case 'MINER_POOL_CREATED':
+			return {...state, minerPool: {startNonce: 0, endNonce: (Math.pow(2, 32) - 1), }}
 		case 'MINING_STARTED':
 			return {...state, mining: true, waiting: false}
 		case 'MINING_FINISHED':

@@ -35,8 +35,10 @@ import {
 import { config } from './Constants'
 
 var socketUrl = config.url.SOCKET_URL
- 
+var maintenance = config.maintenance
+
 const client = new W3CWebSocket(socketUrl);
+
 
 class Main extends Component {
   state = {};
@@ -53,35 +55,37 @@ class Main extends Component {
       dispatch
     } = props
 
-    client.onopen = () => {
 
-      dispatch(socketConnected(client))
-      console.log('WebSocket Client Connected');
-      dispatch(appLoaded());
-    };
-    client.onmessage = (event) => {
-      console.log(event);
+      client.onopen = () => {
 
-      var socketMessage = JSON.parse(event.data)
-      console.log('socketMessage', socketMessage)
+        dispatch(socketConnected(client))
+        console.log('WebSocket Client Connected');
+        dispatch(appLoaded());
+      };
+      client.onmessage = (event) => {
+        console.log(event);
 
-      var messageType = socketMessage.Type
+        var socketMessage = JSON.parse(event.data)
+        console.log('socketMessage', socketMessage)
 
-      switch (messageType) {
-        case 'PROBLEM':
-        dispatch(problemReceived(socketMessage))
-        wasmWorker(socketMessage, props)
-        break
+        var messageType = socketMessage.Type
 
-        case 'SOLUTION':
-        dispatch(solutionVerified(socketMessage))
-        break
+        switch (messageType) {
+          case 'PROBLEM':
+          dispatch(problemReceived(socketMessage))
+          wasmWorker(socketMessage, props)
+          break
 
-        default:
-        console.log('unknown socket message received')
-      }
-      
-    };
+          case 'SOLUTION':
+          dispatch(solutionVerified(socketMessage))
+          break
+
+          default:
+          console.log('unknown socket message received')
+        }
+        
+      };
+    
   }
 
   render() {
@@ -95,16 +99,37 @@ class Main extends Component {
     } = this.props
 
     return (
-      <HashRouter>
-        <div>
-          <TopNav/>
-          <div>
-            <Content />
-          </div>
-        </div>
-      </HashRouter>
+      <div>
+        {
+          maintenance
+          ? maintenanceApp()
+          : normalApp()
+        }
+      </div>
     );
   }
+}
+
+function maintenanceApp() {
+  return (
+    <div>
+      <h3>Coming soon...</h3>
+       <img src="minerlotto_logo.png" alt="minerlotto" className="center"/>
+    </div>
+  )
+}
+
+function normalApp() {
+  return (
+    <HashRouter>
+      <div>
+        <TopNav/>
+        <div>
+          <Content />
+        </div>
+      </div>
+    </HashRouter>
+  )
 }
 
 function wasmWorker(problem, props) {
@@ -122,8 +147,10 @@ function wasmWorker(problem, props) {
 
         console.log("building worker")
 
+        let header = JSON.stringify(problem.Header)
+
         const worker = new Worker('wasm.worker.js');
-        worker.postMessage({eventType: "CALL", eventData: problem.Header, hashResult: hashResult});
+        worker.postMessage({eventType: "CALL", eventData: header, hashResult: hashResult});
         worker.addEventListener('message', function(event) {
  
             const { eventType, eventData, eventId } = event.data;

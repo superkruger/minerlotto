@@ -19,11 +19,9 @@ function HashResult(solved, nonce) {
 // Handle incoming messages
 self.addEventListener('message', function(event) {
  
-    const { eventType, eventData, eventId, hashResult } = event.data;
+    const { eventType, eventData, eventId, hashResult, startNonce, endNonce } = event.data;
 
     lastresult = hashResult
-
-    let header = JSON.stringify(eventData)
 
     importScripts('./wasm_exec.js');
     const go = new Go();
@@ -36,7 +34,7 @@ self.addEventListener('message', function(event) {
                 eventType: "BUSY",
             });
 
-            go.run(instantiatedModule.instance, [header])
+            go.run(instantiatedModule.instance, [eventData])
 
             // Send back result message to main thread
             self.postMessage({

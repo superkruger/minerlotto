@@ -36,6 +36,12 @@ ul.header li a {
 .active {
   background-color: #0099FF;
 }
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
 
 .navbar-brand {
   display: inline-block;

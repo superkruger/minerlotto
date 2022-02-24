@@ -25,6 +25,12 @@ export function problemReceived(problem) {
 	}
 }
 
+export function minerPoolCreated() {
+	return {
+		type: 'MINER_POOL_CREATED'
+	}
+}
+
 export function miningStarted() {
 	return {
 		type: 'MINING_STARTED'

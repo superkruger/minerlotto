@@ -21,7 +21,7 @@ class TopNav extends Component {
 
     return (
       <div>
-            <Link className="navbar-brand" to='/'>Bitcoin Miner Lotto</Link>
+            <h1>Bitcoin Miner Lotto</h1>
             <ul className="header">
               <li><NavLink to="/">Home</NavLink></li>
               <li><NavLink to="/about">About</NavLink></li>
