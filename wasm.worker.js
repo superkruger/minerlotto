@@ -19,7 +19,7 @@ function HashResult(solved, nonce) {
 // Handle incoming messages
 self.addEventListener('message', function(event) {
  
-    const { eventType, eventData, eventId, hashResult } = event.data;
+    const { eventType, eventData, eventId, hashResult, startNonce, endNonce } = event.data;
 
     lastresult = hashResult
 
@@ -30,7 +30,10 @@ self.addEventListener('message', function(event) {
 
         WebAssembly.instantiateStreaming(fetch("./hash.wasm"), go.importObject).then(async (instantiatedModule) => {
 
-            console.log(instantiatedModule.instance)
+            self.postMessage({
+                eventType: "BUSY",
+            });
+
             go.run(instantiatedModule.instance, [eventData])
 
             // Send back result message to main thread
