@@ -9,7 +9,7 @@ const dev = {
   url: {
    SOCKET_URL: 'ws://localhost:8080/socket'
   },
-  maintenance: true
+  maintenance: false
 };
 
 export const config = process.env.NODE_ENV === 'development' ? dev : prod;

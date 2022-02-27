@@ -37,7 +37,11 @@ import { config } from './Constants'
 var socketUrl = config.url.SOCKET_URL
 var maintenance = config.maintenance
 
-const client = new W3CWebSocket(socketUrl);
+let client 
+
+if (!maintenance) {
+  client = new W3CWebSocket(socketUrl);
+}
 
 
 class Main extends Component {
@@ -55,6 +59,7 @@ class Main extends Component {
       dispatch
     } = props
 
+    if (!maintenance) {
 
       client.onopen = () => {
 
@@ -62,6 +67,7 @@ class Main extends Component {
         console.log('WebSocket Client Connected');
         dispatch(appLoaded());
       };
+
       client.onmessage = (event) => {
         console.log(event);
 
@@ -73,7 +79,7 @@ class Main extends Component {
         switch (messageType) {
           case 'PROBLEM':
           dispatch(problemReceived(socketMessage))
-          wasmWorker(socketMessage, props)
+          startProblem(socketMessage, props)
           break
 
           case 'SOLUTION':
@@ -85,7 +91,11 @@ class Main extends Component {
         }
         
       };
-    
+
+      client.onclose = () => {
+        console.log('Socket closed')
+      }
+    }
   }
 
   render() {
@@ -113,8 +123,8 @@ class Main extends Component {
 function maintenanceApp() {
   return (
     <div>
-      <h3>Coming soon...</h3>
-       <img src="minerlotto_logo.png" alt="minerlotto" className="center"/>
+      <img src="minerlotto_logo.png" alt="minerlotto" className="center maintenance_img"/>
+      <div className="center"><h3>Coming soon...</h3></div>
     </div>
   )
 }
@@ -130,6 +140,12 @@ function normalApp() {
       </div>
     </HashRouter>
   )
+}
+
+function startProblem(problem, props) {
+
+  console.log('startProblem', props)
+
 }
 
 function wasmWorker(problem, props) {

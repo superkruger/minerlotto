@@ -7,6 +7,8 @@ if (!WebAssembly.instantiateStreaming) {
     };
 }
 
+const MAX_NONCE = Math.pow(2, 32) - 1
+
 let lastresult
 
 function HashResult(solved, nonce) {
