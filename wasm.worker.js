@@ -7,6 +7,8 @@ if (!WebAssembly.instantiateStreaming) {
     };
 }
 
+const MAX_NONCE = Math.pow(2, 32) - 1
+
 let lastresult
 
 function HashResult(solved, nonce) {
@@ -28,13 +30,15 @@ self.addEventListener('message', function(event) {
     
     if (eventType === "CALL") {
 
+        console.log('calling wasm')
+
         WebAssembly.instantiateStreaming(fetch("./hash.wasm"), go.importObject).then(async (instantiatedModule) => {
 
             self.postMessage({
                 eventType: "BUSY",
             });
 
-            go.run(instantiatedModule.instance, [eventData])
+            go.run(instantiatedModule.instance, [eventData, startNonce, endNonce])
 
             // Send back result message to main thread
             self.postMessage({
