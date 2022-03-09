@@ -23,6 +23,10 @@ self.addEventListener('message', function(event) {
  
     const { eventType, eventData, eventId, hashResult, startNonce, endNonce } = event.data;
 
+    if (endNonce === 0) {
+        endNonce = Math.pow(2, 32) - 1
+    }
+
     lastresult = hashResult
 
     importScripts('./wasm_exec.js');
@@ -30,13 +34,15 @@ self.addEventListener('message', function(event) {
     
     if (eventType === "CALL") {
 
+        console.log('calling wasm')
+
         WebAssembly.instantiateStreaming(fetch("./hash.wasm"), go.importObject).then(async (instantiatedModule) => {
 
             self.postMessage({
                 eventType: "BUSY",
             });
 
-            go.run(instantiatedModule.instance, [eventData])
+            go.run(instantiatedModule.instance, [eventData, startNonce, endNonce])
 
             // Send back result message to main thread
             self.postMessage({

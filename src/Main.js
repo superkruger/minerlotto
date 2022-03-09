@@ -10,6 +10,7 @@ import {
 import TopNav from "./components/TopNav"
 import SideNav from "./components/SideNav"
 import Content from "./components/Content"
+import MiningController from "./components/MiningController"
 
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 
@@ -17,7 +18,7 @@ import {
   appLoadedSelector, 
   isWaitingSelector,
   addressSelector,
-  isMiningSelector, 
+  miningSelector, 
   problemSelector
 } from './store/selectors'
 
@@ -79,7 +80,6 @@ class Main extends Component {
         switch (messageType) {
           case 'PROBLEM':
           dispatch(problemReceived(socketMessage))
-          startProblem(socketMessage, props)
           break
 
           case 'SOLUTION':
@@ -103,7 +103,6 @@ class Main extends Component {
       appLoaded,
       isWaiting,
       address,
-      isMining,
       header,
       dispatch
     } = this.props
@@ -136,75 +135,74 @@ function normalApp() {
         <TopNav/>
         <div>
           <Content />
+          <MiningController />
         </div>
       </div>
     </HashRouter>
   )
 }
 
-function startProblem(problem, props) {
 
-  console.log('startProblem', props)
 
-}
+// function wasmWorker(problem, props) {
 
-function wasmWorker(problem, props) {
-
-    const {
-      dispatch
-    } = props
+//     const {
+//       socketClient,
+//       dispatch
+//     } = props
  
-    let hashResult = {};
-    hashResult['extraNonce'] = problem.ExtraNonce
-    hashResult['blockHeight'] = problem.BlockHeight
-    hashResult['address'] = problem.Address
+//     let hashResult = {};
+//     hashResult['extraNonce'] = problem.ExtraNonce
+//     hashResult['blockHeight'] = problem.BlockHeight
+//     hashResult['address'] = problem.Address
  
-    return new Promise((resolve, reject) => {
+//     return new Promise((resolve, reject) => {
 
-        console.log("building worker")
+//         let header = JSON.stringify(problem.Header)
 
-        let header = JSON.stringify(problem.Header)
-
-        const worker = new Worker('wasm.worker.js');
-        worker.postMessage({eventType: "CALL", eventData: header, hashResult: hashResult});
-        worker.addEventListener('message', function(event) {
+//         console.log('Creating worker')
+//         const worker = new Worker('wasm.worker.js');
+//         console.log('Invoking worker')
+//         worker.postMessage({eventType: "CALL", eventData: header, startNonce: 0, endNonce: 5000000, hashResult: hashResult});
+//         worker.addEventListener('message', function(event) {
  
-            const { eventType, eventData, eventId } = event.data;
+//             const { eventType, eventData, eventId } = event.data;
  
-            if (eventType === "RESULT") {
-                console.log("RESULT", eventData)
+//             if (eventType === "RESULT") {
+//                 console.log("RESULT", eventData)
 
-                if (eventData.solved) {
-                  console.log("Header Problem Solved with nonce", eventData.nonce)
-                  client.send(JSON.stringify({"Type": "SOLVED", "Address": eventData.address, Nonce: eventData.nonce, ExtraNonce: eventData.extraNonce, BlockHeight: eventData.blockHeight}))
-                } else {
-                  console.log("Requesting next Header Problem")
-                  client.send(JSON.stringify({"Type": "REQUEST", "Address": eventData.address}))
-                }
+//                 if (eventData.solved) {
+//                   console.log("Header Problem Solved with nonce", eventData.nonce)
+//                   socketClient.send(JSON.stringify({"Type": "SOLVED", "Address": eventData.address, Nonce: eventData.nonce, ExtraNonce: eventData.extraNonce, BlockHeight: eventData.blockHeight}))
+//                 } else {
+//                   //console.log("Requesting next Header Problem")
+//                   //socketClient.send(JSON.stringify({"Type": "REQUEST", "Address": eventData.address, "BlockHeight": eventData.blockHeight, "HashesCompleted": eventData.nonce}))
+//                 }
 
-                dispatch(miningFinished(eventData.solved, eventData.nonce))
+//                 dispatch(miningFinished(eventData.solved, eventData.nonce))
 
                 
-                return;
-            } else if (eventType === "BUSY") {
-                console.log("BUSY")
-                dispatch(miningStarted())
-                return;
-            } 
-        });
+//                 return;
+//             } else if (eventType === "BUSY") {
+//                 console.log("BUSY")
+//                 dispatch(miningStarted())
+//                 return;
+//             } 
+//         });
  
-        worker.addEventListener("error", function(error) {
-            reject(error);
-        });
-    })
-}
+//         worker.addEventListener("error", function(error) {
+//             reject(error);
+//         });
+//     })
+// }
+
 
 function mapStateToProps(state) {
   return {
     appLoaded: appLoadedSelector(state),
     isWaiting: isWaitingSelector(state),
     address: addressSelector(state),
-    isMining: isMiningSelector(state),
+    mining: miningSelector(state),
     problem: problemSelector(state)
   }
 }

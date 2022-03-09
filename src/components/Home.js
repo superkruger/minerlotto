@@ -8,12 +8,13 @@ import {
   NavLink,
   HashRouter
 } from "react-router-dom";
+
 import { 
   appLoadedSelector,
   socketClientSelector, 
   isWaitingSelector,
   addressSelector,
-  isMiningSelector, 
+  miningSelector, 
   problemSelector
 } from '../store/selectors'
 
@@ -38,7 +39,7 @@ class Home extends Component {
       <div>
         {
           appLoaded
-          ? walletForm (this.props)
+          ? home (this.props)
           : connecting()
         }
       </div>
@@ -46,6 +47,24 @@ class Home extends Component {
   }
 }
  
+function home(props) {
+
+  const {
+    mining,
+    dispatch
+  } = props
+
+  return (
+    <div>
+    {
+      mining
+      ? <div/>
+      : walletForm(props)
+    }
+    </div>
+  );
+}
+
 function walletForm(props) {
 
   const {
@@ -95,7 +114,7 @@ function mapStateToProps(state) {
     socketClient: socketClientSelector(state),
     isWaiting: isWaitingSelector(state),
     address: addressSelector(state),
-    isMining: isMiningSelector(state),
+    mining: miningSelector(state),
     problem: problemSelector(state)
   }
 }

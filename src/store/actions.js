@@ -25,6 +25,13 @@ export function problemReceived(problem) {
 	}
 }
 
+export function workerCreated(worker) {
+	return {
+		type: 'WORKER_CREATED',
+		worker
+	}
+}
+
 export function minerPoolCreated() {
 	return {
 		type: 'MINER_POOL_CREATED'
@@ -37,11 +44,19 @@ export function miningStarted() {
 	}
 }
 
-export function miningFinished(solved, nonce) {
+export function miningFinished(solved, nonce, extraNonce, blockHeight) {
 	return {
 		type: 'MINING_FINISHED',
 		solved,
-		nonce
+		nonce,
+		extraNonce,
+		blockHeight
+	}
+}
+
+export function miningStopped() {
+	return {
+		type: 'MINING_STOPPED'
 	}
 }
 
