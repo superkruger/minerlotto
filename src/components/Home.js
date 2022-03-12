@@ -10,12 +10,11 @@ import {
 } from "react-router-dom";
 
 import { 
-  appLoadedSelector,
+  socketConnectedSelector,
   socketClientSelector, 
-  isWaitingSelector,
   addressSelector,
   miningSelector, 
-  problemSelector
+  stoppedSelector
 } from '../store/selectors'
 
 import {
@@ -23,7 +22,7 @@ import {
 } from '../store/interactions'
 
 import { 
-  appLoaded,
+  socketConnected,
   addressEntered,
   miningStarted,
   miningFinished
@@ -32,13 +31,13 @@ import {
 class Home extends Component {
   render() {
     const {
-      appLoaded
+      socketConnected
     } = this.props
 
     return (
       <div>
         {
-          appLoaded
+          socketConnected
           ? home (this.props)
           : connecting()
         }
@@ -50,16 +49,16 @@ class Home extends Component {
 function home(props) {
 
   const {
-    mining,
+    stopped,
     dispatch
   } = props
 
   return (
     <div>
     {
-      mining
-      ? <div/>
-      : walletForm(props)
+      stopped
+      ? walletForm(props)
+      : <div/>
     }
     </div>
   );
@@ -110,12 +109,11 @@ function connecting() {
 
 function mapStateToProps(state) {
   return {
-    appLoaded: appLoadedSelector(state),
+    socketConnected: socketConnectedSelector(state),
     socketClient: socketClientSelector(state),
-    isWaiting: isWaitingSelector(state),
     address: addressSelector(state),
     mining: miningSelector(state),
-    problem: problemSelector(state)
+    stopped: stoppedSelector(state)
   }
 }
 export default connect(mapStateToProps)(Home);

@@ -1,9 +1,6 @@
 import React, { Component } from 'react'
 import { Form, Button, Col } from 'react-bootstrap'
 import { connect } from 'react-redux'
-import {
-  appLoadedSelector
-} from '../store/selectors'
 
 class SideNav extends Component {
 
@@ -37,7 +34,6 @@ class SideNav extends Component {
 
 function mapStateToProps(state) {
   return {
-    appLoaded: appLoadedSelector(state)
   }
 }
 

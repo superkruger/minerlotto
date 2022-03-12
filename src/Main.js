@@ -15,16 +15,14 @@ import MiningController from "./components/MiningController"
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 
 import { 
-  appLoadedSelector, 
-  isWaitingSelector,
+  socketConnectedSelector, 
   addressSelector,
   miningSelector, 
-  problemSelector
+  stoppedSelector
 } from './store/selectors'
 
 import { 
   socketConnected,
-  appLoaded,
   addressEntered,
   problemReceived,
   miningStarted,
@@ -52,6 +50,8 @@ class Main extends Component {
     const {
       dispatch
     } = this.props
+
+    console.log("maxNonce", config.maxNonce)
   }
 
   componentWillMount() {
@@ -66,7 +66,6 @@ class Main extends Component {
 
         dispatch(socketConnected(client))
         console.log('WebSocket Client Connected');
-        dispatch(appLoaded());
       };
 
       client.onmessage = (event) => {
@@ -100,8 +99,6 @@ class Main extends Component {
 
   render() {
     const {
-      appLoaded,
-      isWaiting,
       address,
       header,
       dispatch
@@ -112,7 +109,7 @@ class Main extends Component {
         {
           maintenance
           ? maintenanceApp()
-          : normalApp()
+          : normalApp(this.props)
         }
       </div>
     );
@@ -128,14 +125,21 @@ function maintenanceApp() {
   )
 }
 
-function normalApp() {
+function normalApp(props) {
+  const {
+      stopped
+    } = props
+
   return (
     <HashRouter>
       <div>
         <TopNav/>
         <div>
-          <Content />
-          <MiningController />
+          {
+            stopped
+            ? <Content />
+            : <MiningController />
+          }
         </div>
       </div>
     </HashRouter>
@@ -199,11 +203,10 @@ function normalApp() {
 
 function mapStateToProps(state) {
   return {
-    appLoaded: appLoadedSelector(state),
-    isWaiting: isWaitingSelector(state),
+    socketConnected: socketConnectedSelector(state),
     address: addressSelector(state),
     mining: miningSelector(state),
-    problem: problemSelector(state)
+    stopped: stoppedSelector(state)
   }
 }
 

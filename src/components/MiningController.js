@@ -4,22 +4,7 @@ import { Container, Row, Col, Button } from 'react-bootstrap'
 
 import MiningWorker from "./MiningWorker"
 
-import { 
-  appLoadedSelector, 
-  isWaitingSelector,
-  addressSelector,
-  problemSelector
-} from '../store/selectors'
 
-import { 
-  socketConnected,
-  appLoaded,
-  addressEntered,
-  problemReceived,
-  miningStarted,
-  miningFinished,
-  solutionVerified
-} from '../store/actions'
 
 
 class MiningController extends Component {
@@ -27,10 +12,6 @@ class MiningController extends Component {
 
   render() {
     const {
-      appLoaded,
-      isWaiting,
-      address,
-      header,
       dispatch
     } = this.props
 
@@ -45,10 +26,6 @@ class MiningController extends Component {
 
 function mapStateToProps(state) {
   return {
-    appLoaded: appLoadedSelector(state),
-    isWaiting: isWaitingSelector(state),
-    address: addressSelector(state),
-    problem: problemSelector(state)
   }
 }
 

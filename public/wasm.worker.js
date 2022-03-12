@@ -7,8 +7,6 @@ if (!WebAssembly.instantiateStreaming) {
     };
 }
 
-const MAX_NONCE = Math.pow(2, 32) - 1
-
 let lastresult
 
 function HashResult(solved, nonce) {
@@ -22,10 +20,6 @@ function HashResult(solved, nonce) {
 self.addEventListener('message', function(event) {
  
     const { eventType, eventData, eventId, hashResult, startNonce, endNonce } = event.data;
-
-    if (endNonce === 0) {
-        endNonce = Math.pow(2, 32) - 1
-    }
 
     lastresult = hashResult
 

@@ -5,12 +5,6 @@ export function socketConnected(client) {
 	}
 }
 
-export function appLoaded() {
-	return {
-		type: 'APP_LOADED'
-	}
-}
-
 export function addressEntered(address) {
 	return {
 		type: 'ADDRESS_ENTERED',
@@ -44,13 +38,14 @@ export function miningStarted() {
 	}
 }
 
-export function miningFinished(solved, nonce, extraNonce, blockHeight) {
+export function miningFinished(solved, nonce, extraNonce, blockHeight, nextEndNonce) {
 	return {
 		type: 'MINING_FINISHED',
 		solved,
 		nonce,
 		extraNonce,
-		blockHeight
+		blockHeight,
+		nextEndNonce
 	}
 }
 
