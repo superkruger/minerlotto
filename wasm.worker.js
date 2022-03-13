@@ -7,8 +7,6 @@ if (!WebAssembly.instantiateStreaming) {
     };
 }
 
-const MAX_NONCE = Math.pow(2, 32) - 1
-
 let lastresult
 
 function HashResult(solved, nonce) {
@@ -18,10 +16,27 @@ function HashResult(solved, nonce) {
   lastresult['nonce'] = nonce
 }
  
+function GoSleep(sleepTime) {
+    //console.log('GoSleep', sleepTime)
+    //sleepWrapper(sleepTime)
+    //console.log('GoSleep done')
+    //return sleepTime * 3
+
+    return sleep(sleepTime)
+}
+
+async function sleepWrapper(sleepTime) {
+    await sleep(sleepTime)
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // Handle incoming messages
 self.addEventListener('message', function(event) {
  
-    const { eventType, eventData, eventId, hashResult, startNonce, endNonce } = event.data;
+    const { eventType, eventData, eventId, hashResult, startNonce, endNonce, sliderValue } = event.data;
 
     lastresult = hashResult
 
@@ -38,7 +53,7 @@ self.addEventListener('message', function(event) {
                 eventType: "BUSY",
             });
 
-            go.run(instantiatedModule.instance, [eventData, startNonce, endNonce])
+            go.run(instantiatedModule.instance, [eventData, startNonce, endNonce, sliderValue])
 
             // Send back result message to main thread
             self.postMessage({
