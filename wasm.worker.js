@@ -10,7 +10,7 @@ if (!WebAssembly.instantiateStreaming) {
 let lastresult
 
 function HashResult(solved, nonce) {
-  console.log("HashResult is", solved, nonce)
+  //console.log("HashResult is", solved, nonce)
 
   lastresult['solved'] = solved
   lastresult['nonce'] = nonce
@@ -45,7 +45,7 @@ self.addEventListener('message', function(event) {
     
     if (eventType === "CALL") {
 
-        console.log('calling wasm')
+        //console.log('calling wasm')
 
         WebAssembly.instantiateStreaming(fetch("./hash.wasm"), go.importObject).then(async (instantiatedModule) => {
 
