@@ -6,8 +6,9 @@ import {
 } from "react-router-dom";
 import { Tabs, Tab } from 'react-bootstrap'
 import Home from "./Home";
-import About from "./About";
+import Faq from "./Faq";
 import Contact from "./Contact";
+import Winners from "./Winners";
 
 class Content extends Component {
 
@@ -16,8 +17,9 @@ class Content extends Component {
       <div className="content">
         <Routes>
           <Route exact path="/" element={<Home/>}/>
-          <Route path="/about" element={<About/>}/>
+          <Route path="/faq" element={<Faq/>}/>
           <Route path="/contact" element={<Contact/>}/>
+          <Route path="/winners" element={<Winners/>}/>
         </Routes>
       </div>
     )

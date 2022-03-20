@@ -23,18 +23,20 @@ import {
 
 import { 
   socketConnected,
+  socketDisconnected,
   addressEntered,
   problemReceived,
   miningStarted,
   miningFinished,
-  solutionVerified
+  solutionVerified,
+  winnersReceived
 } from './store/actions'
 
 
-import { config } from './Constants'
+import { CONFIG, LOG } from './Constants'
 
-var socketUrl = config.url.SOCKET_URL
-var maintenance = config.maintenance
+var socketUrl = CONFIG.url.SOCKET_URL
+var maintenance = CONFIG.maintenance
 
 let client 
 
@@ -51,7 +53,7 @@ class Main extends Component {
       dispatch
     } = this.props
 
-    console.log("maxNonce", config.maxNonce)
+    LOG("maxNonce", CONFIG.maxNonce)
   }
 
   componentWillMount() {
@@ -65,14 +67,14 @@ class Main extends Component {
       client.onopen = () => {
 
         dispatch(socketConnected(client))
-        console.log('WebSocket Client Connected');
+        LOG('WebSocket Client Connected');
       };
 
       client.onmessage = (event) => {
-        console.log(event);
+        LOG(event);
 
         var socketMessage = JSON.parse(event.data)
-        console.log('socketMessage', socketMessage)
+        LOG('socketMessage', socketMessage)
 
         var messageType = socketMessage.Type
 
@@ -85,14 +87,19 @@ class Main extends Component {
           dispatch(solutionVerified(socketMessage))
           break
 
+          case 'WINNERS':
+          dispatch(winnersReceived(socketMessage))
+          break
+
           default:
-          console.log('unknown socket message received')
+          LOG('unknown socket message received')
         }
         
       };
 
       client.onclose = () => {
-        console.log('Socket closed')
+        LOG('Socket closed')
+        dispatch(socketDisconnected())
       }
     }
   }
@@ -135,70 +142,13 @@ function normalApp(props) {
       <div>
         <TopNav/>
         <div>
-          {
-            stopped
-            ? <Content />
-            : <MiningController />
-          }
+          <Content />
+          <MiningController />
         </div>
       </div>
     </HashRouter>
   )
 }
-
-
-
-// function wasmWorker(problem, props) {
-
-//     const {
-//       socketClient,
-//       dispatch
-//     } = props
- 
-//     let hashResult = {};
-//     hashResult['extraNonce'] = problem.ExtraNonce
-//     hashResult['blockHeight'] = problem.BlockHeight
-//     hashResult['address'] = problem.Address
- 
-//     return new Promise((resolve, reject) => {
-
-//         let header = JSON.stringify(problem.Header)
-
-//         console.log('Creating worker')
-//         const worker = new Worker('wasm.worker.js');
-//         console.log('Invoking worker')
-//         worker.postMessage({eventType: "CALL", eventData: header, startNonce: 0, endNonce: 5000000, hashResult: hashResult});
-//         worker.addEventListener('message', function(event) {
- 
-//             const { eventType, eventData, eventId } = event.data;
- 
-//             if (eventType === "RESULT") {
-//                 console.log("RESULT", eventData)
-
-//                 if (eventData.solved) {
-//                   console.log("Header Problem Solved with nonce", eventData.nonce)
-//                   socketClient.send(JSON.stringify({"Type": "SOLVED", "Address": eventData.address, Nonce: eventData.nonce, ExtraNonce: eventData.extraNonce, BlockHeight: eventData.blockHeight}))
-//                 } else {
-//                   //console.log("Requesting next Header Problem")
-//                   //socketClient.send(JSON.stringify({"Type": "REQUEST", "Address": eventData.address, "BlockHeight": eventData.blockHeight, "HashesCompleted": eventData.nonce}))
-//                 }
-
-//                 dispatch(miningFinished(eventData.solved, eventData.nonce))
-
-                
-//                 return;
-//             } else if (eventType === "BUSY") {
-//                 console.log("BUSY")
-//                 dispatch(miningStarted())
-//                 return;
-//             } 
-//         });
- 
-//         worker.addEventListener("error", function(error) {
-//             reject(error);
-//         });
-//     })
-// }
 
 
 function mapStateToProps(state) {

@@ -1,14 +1,26 @@
 import React, { Component } from "react";
-import { Follow } from 'react-twitter-widgets';
+import { Container, Row, Col } from 'react-bootstrap'
+import { Timeline } from 'react-twitter-widgets';
 
 class Contact extends Component {
   render() {
     return (
-      <div>
-        <h2>Got Questions or Feedback?</h2>
+      <Container>
+        <Row>
+          <Col sm={12}>
+            <h4>Got Questions or Feedback?</h4>
 
-        <Follow username="toxicus_maximus" />
-      </div>
+            <Timeline
+              dataSource={{
+                sourceType: 'profile',
+                screenName: 'miner_lotto'
+              }}
+              options={{
+              }}
+            />
+          </Col>
+        </Row>
+      </Container>
     );
   }
 }

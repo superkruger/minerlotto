@@ -2,7 +2,7 @@ const prod = {
   url: {
    SOCKET_URL: 'wss://api.minerlotto.com/socket'
   },
-  maintenance: true,
+  maintenance: false,
   maxNonce: Math.pow(2, 32) - 1
 };
 
@@ -14,4 +14,14 @@ const dev = {
   maxNonce: Math.pow(2, 32) - 1
 };
 
-export const config = process.env.NODE_ENV === 'development' ? dev : prod;
+export const CONFIG = process.env.NODE_ENV === 'development' ? dev : prod;
+
+export const VALID_ADDRESS = new RegExp(
+   '^[0-9a-zA-Z]{20,64}$'
+);
+
+export const LOG = (...logs) => {
+    if (process.env.NODE_ENV === 'development') {
+        console.log(logs)
+    }
+}

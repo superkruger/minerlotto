@@ -5,6 +5,12 @@ export function socketConnected(client) {
 	}
 }
 
+export function socketDisconnected() {
+	return {
+		type: 'SOCKET_DISCONNECTED'
+	}
+}
+
 export function addressEntered(address) {
 	return {
 		type: 'ADDRESS_ENTERED',
@@ -16,6 +22,13 @@ export function problemReceived(problem) {
 	return {
 		type: 'PROBLEM_RECEIVED',
 		problem
+	}
+}
+
+export function winnersReceived(winners) {
+	return {
+		type: 'WINNERS_RECEIVED',
+		winners
 	}
 }
 
@@ -38,14 +51,15 @@ export function miningStarted() {
 	}
 }
 
-export function miningFinished(solved, nonce, extraNonce, blockHeight, nextEndNonce) {
+export function miningFinished(solved, nonce, extraNonce, blockHeight, nextEndNonce, hashesPerSecond) {
 	return {
 		type: 'MINING_FINISHED',
 		solved,
 		nonce,
 		extraNonce,
 		blockHeight,
-		nextEndNonce
+		nextEndNonce,
+		hashesPerSecond
 	}
 }
 
@@ -59,5 +73,13 @@ export function solutionVerified(solution) {
 	return {
 		type: 'SOLUTION_VERIFIED',
 		solution
+	}
+}
+
+export function sliderChanged(value) {
+	console.log('sliderChanged', value)
+	return {
+		type: 'SLIDER_CHANGED',
+		value
 	}
 }

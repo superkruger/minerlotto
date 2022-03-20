@@ -12,7 +12,7 @@ ul.header li {
   margin: 0;
 }
 ul.header {
-  background-color: #111;
+  background-color: #FF9900;
   padding: 0;
 }
 ul.header li a {
@@ -23,7 +23,7 @@ ul.header li a {
   display: inline-block;
 }
 .content {
-  background-color: #FFF;
+  background-color: #F0F0F0;
   padding: 20px;
 }
 .content h2 {
@@ -34,7 +34,7 @@ ul.header li a {
   margin-bottom: 10px;
 }
 .active {
-  background-color: #0099FF;
+  background-color: #0b5ed7;;
 }
 .center {
   display: block;
@@ -45,7 +45,17 @@ ul.header li a {
 .maintenance_img {
   width: 30%;
 }
-
+.logo_img {
+  width: 10%;
+}
+.logo_heading {
+  margin: 0;
+  font-weight: bold;
+  font-size: xx-large;
+  text-decoration: none;
+  padding: 20px;
+  display: inline-block;
+}
 .navbar-brand {
   display: inline-block;
   padding-top: 0.3125rem;

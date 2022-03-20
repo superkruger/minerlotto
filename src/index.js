@@ -4,6 +4,7 @@ import { Provider } from 'react-redux'
 import Main from "./Main";
 import { configureStore } from './store/configureStore';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
 import "./index.css";
  
 ReactDOM.render(

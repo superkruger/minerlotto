@@ -12,7 +12,8 @@ import {
   extraNonceSelector,
   solvedSelector,
   problemSelector,
-  workerSelector
+  workerSelector,
+  sliderValueSelector
 } from '../store/selectors'
 
 import { 
@@ -28,6 +29,8 @@ import {
 import {
   processResult
 } from '../store/interactions'
+
+import { LOG } from '../Constants'
 
 class MiningWorker extends Component {
   state = {};
@@ -53,10 +56,10 @@ class MiningWorker extends Component {
       || ((prevProps.problem !== null && problem !== null)
         && (prevProps.problem.problem !== problem.problem))) {
 
-        console.log('Problem updated')
+        LOG('Problem updated')
 
         if (worker != null) {
-          console.log('worker still running, terminating');
+          LOG('worker still running, terminating');
           worker.terminate();
         }
 
@@ -66,7 +69,7 @@ class MiningWorker extends Component {
         }
     } else if (prevProps.mining !== mining) {
       if (!mining && socketClient !== null) {
-        console.log('not mining')
+        LOG('not mining')
 
         if (solved) {
           socketClient.send(JSON.stringify({"Type": "SOLVED", "Address": address, Nonce: nonce, ExtraNonce: extraNonce, BlockHeight: blockHeight}))
@@ -93,43 +96,9 @@ class MiningWorker extends Component {
 
     return (
       <div>
-      {
-        stopped
-        ? <div></div>
-        : workerStatus(this.props)
-      }
       </div>
   );
   }
-}
-
-
-function workerStatus(props) {
-
-  const {
-    socketClient,
-    worker,
-    dispatch
-  } = props
-
-  return (
-    <div>
-      <h2>Mining!</h2>
-      <Form noValidate onSubmit={(event) => {
-        event.preventDefault()
-        socketClient.send(JSON.stringify({"Type": "STOP"}))
-        if (worker !== null) {
-          worker.terminate()
-        }
-        dispatch(miningStopped())
-      }}>
-
-        <Button variant="primary" type="submit">
-          Stop mining
-        </Button>
-      </Form>
-    </div>
-  );
 }
 
 function wasmWorker(props) {
@@ -137,6 +106,7 @@ function wasmWorker(props) {
     const {
       socketClient,
       problem,
+      sliderValue,
       dispatch
     } = props
  
@@ -149,30 +119,30 @@ function wasmWorker(props) {
 
         let header = JSON.stringify(problem.problem.Header)
 
-        console.log('Creating worker')
+        LOG('Creating worker')
         const worker = new Worker('wasm.worker.js');
 
         problem.startTime = new Date()
 
-        worker.postMessage({eventType: "CALL", eventData: header, startNonce: problem.startNonce, endNonce: problem.endNonce, hashResult: hashResult});
+        worker.postMessage({eventType: "CALL", eventData: header, startNonce: problem.startNonce, endNonce: problem.endNonce, sliderValue: sliderValue, hashResult: hashResult});
         worker.addEventListener('message', function(event) {
  
             const { eventType, eventData, eventId } = event.data;
  
             if (eventType === "RESULT") {
-                console.log("RESULT", eventData)
+                LOG("RESULT", eventData)
 
                 processResult(eventData, problem, socketClient, dispatch)
 
 
             } else if (eventType === "BUSY") {
-                console.log("BUSY")
+                LOG("BUSY")
                 dispatch(miningStarted())
             }
         });
  
         worker.addEventListener("error", function(error) {
-            console.log('wasmWorker error', error);
+            LOG('wasmWorker error', error);
         });
 
         return worker
@@ -190,7 +160,8 @@ function mapStateToProps(state) {
     extraNonce: extraNonceSelector(state),
     solved: solvedSelector(state),
     problem: problemSelector(state),
-    worker: workerSelector(state)
+    worker: workerSelector(state),
+    sliderValue: sliderValueSelector(state)
   }
 }
 

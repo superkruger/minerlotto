@@ -1,6 +1,11 @@
 import { get } from 'lodash'
 import { createSelector } from 'reselect'
 
+const KH = 1000
+const MH = KH * 1000
+const GH = MH * 1000
+const TH = GH * 1000
+
 const socketConnected = state => get(state, 'app.connected', false)
 export const socketConnectedSelector = createSelector(socketConnected, s => s)
 
@@ -36,3 +41,41 @@ export const workerSelector = createSelector(worker, s => s)
 
 const solution = state => get(state, 'app.solution', null)
 export const solutionSelector = createSelector(solution, s => s)
+
+const winners = state => get(state, 'app.winners', null)
+export const winnersSelector = createSelector(winners, s => s)
+
+const sliderValue = state => get(state, 'app.sliderValue', 50)
+export const sliderValueSelector = createSelector(sliderValue, s => s)
+
+const hashesPerSecond = state => get(state, 'app.hashesPerSecond', 0)
+export const hashesPerSecondSelector = createSelector(hashesPerSecond, 
+	(hashes) => {
+		return formatHashesPerSecond(hashes)
+	})
+
+const formatHashesPerSecond = (hashes) => {
+	if (hashes === 0) {
+		return ""
+	}
+	const precision = 100
+
+	let postfix = " hashes "
+
+	if (hashes > TH) {
+		postfix = " terrahashes (TH) "
+		hashes = hashes / TH
+	} else if (hashes > GH) {
+		postfix = " gigahashes (GH) "
+		hashes = hashes / GH
+	} else if (hashes > MH) {
+		postfix = " megahashes (MH) "
+		hashes = hashes / MH
+	} else if (hashes > KH) {
+		postfix = " kilohashes (KH) "
+		hashes = hashes / KH
+	}
+
+	hashes = Math.round(hashes * precision) / precision
+	return hashes + postfix + "per second"
+}

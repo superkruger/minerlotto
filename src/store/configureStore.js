@@ -2,7 +2,7 @@ import { createStore, applyMiddleware, compose } from 'redux'
 import { createLogger } from 'redux-logger'
 import rootReducer from './reducers'
 
-const loggerMiddleware = createLogger()
+const loggerMiddleware = process.env.NODE_ENV === 'development' ? createLogger() : null
 const middleware = []
 
 // for reduc devtools
@@ -17,7 +17,7 @@ export function configureStore ( ) {
 	mystore = createStore (
 		rootReducer,
 		{},
-		composeEnhancers (applyMiddleware (...middleware, loggerMiddleware))
+		composeEnhancers (loggerMiddleware ? applyMiddleware (...middleware, loggerMiddleware) : applyMiddleware (...middleware))
 	)
 	return mystore
 }

@@ -10,16 +10,33 @@ if (!WebAssembly.instantiateStreaming) {
 let lastresult
 
 function HashResult(solved, nonce) {
-  console.log("HashResult is", solved, nonce)
+  //console.log("HashResult is", solved, nonce)
 
   lastresult['solved'] = solved
   lastresult['nonce'] = nonce
 }
  
+function GoSleep(sleepTime) {
+    //console.log('GoSleep', sleepTime)
+    //sleepWrapper(sleepTime)
+    //console.log('GoSleep done')
+    //return sleepTime * 3
+
+    return sleep(sleepTime)
+}
+
+async function sleepWrapper(sleepTime) {
+    await sleep(sleepTime)
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // Handle incoming messages
 self.addEventListener('message', function(event) {
  
-    const { eventType, eventData, eventId, hashResult, startNonce, endNonce } = event.data;
+    const { eventType, eventData, eventId, hashResult, startNonce, endNonce, sliderValue } = event.data;
 
     lastresult = hashResult
 
@@ -28,7 +45,7 @@ self.addEventListener('message', function(event) {
     
     if (eventType === "CALL") {
 
-        console.log('calling wasm')
+        //console.log('calling wasm')
 
         WebAssembly.instantiateStreaming(fetch("./hash.wasm"), go.importObject).then(async (instantiatedModule) => {
 
@@ -36,7 +53,7 @@ self.addEventListener('message', function(event) {
                 eventType: "BUSY",
             });
 
-            go.run(instantiatedModule.instance, [eventData, startNonce, endNonce])
+            go.run(instantiatedModule.instance, [eventData, startNonce, endNonce, sliderValue])
 
             // Send back result message to main thread
             self.postMessage({
